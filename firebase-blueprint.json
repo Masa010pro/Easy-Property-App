@@ -1,0 +1,255 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile containing authenticated identity, display name, and role.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "firstName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["ADMIN", "OWNER", "MANAGER", "TENANT", "THIRD_PARTY"] },
+        "phone": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "email", "firstName", "lastName", "role", "createdAt"]
+    },
+    "Property": {
+      "title": "Property",
+      "description": "A rental property site owned by an owner and managed by assigned managers.",
+      "type": "object",
+      "properties": {
+        "propertyId": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "name": { "type": "string" },
+        "address": { "type": "string" },
+        "city": { "type": "string" },
+        "description": { "type": "string" },
+        "facilities": { "type": "array" },
+        "managerEmails": { "type": "array" },
+        "isPublicAd": { "type": "boolean" },
+        "contactPhone": { "type": "string" },
+        "contactEmail": { "type": "string" },
+        "currency": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["propertyId", "ownerId", "name", "address", "createdAt"]
+    },
+    "Unit": {
+      "title": "Unit",
+      "description": "A rentable unit within a property site.",
+      "type": "object",
+      "properties": {
+        "unitId": { "type": "string" },
+        "propertyId": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "unitNumber": { "type": "string" },
+        "block": { "type": "string" },
+        "floor": { "type": "string" },
+        "rentAmount": { "type": "number" },
+        "depositAmount": { "type": "number" },
+        "currency": { "type": "string" },
+        "status": { "type": "string", "enum": ["Available", "Reserved", "Occupied", "Unavailable"] },
+        "currentTenantEmail": { "type": "string" },
+        "currentTenantName": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["unitId", "propertyId", "ownerId", "unitNumber", "rentAmount", "status", "createdAt"]
+    },
+    "Tenancy": {
+      "title": "Tenancy",
+      "description": "Active tenancy record associating a tenant with a unit.",
+      "type": "object",
+      "properties": {
+        "tenancyId": { "type": "string" },
+        "propertyId": { "type": "string" },
+        "unitId": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "tenantId": { "type": "string" },
+        "tenantEmail": { "type": "string" },
+        "tenantName": { "type": "string" },
+        "rentAmount": { "type": "number" },
+        "currency": { "type": "string" },
+        "startDate": { "type": "string" },
+        "status": { "type": "string", "enum": ["ACTIVE", "TERMINATED", "PENDING"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["tenancyId", "propertyId", "unitId", "ownerId", "tenantEmail", "rentAmount", "status", "createdAt"]
+    },
+    "Invitation": {
+      "title": "Invitation",
+      "description": "Tenant onboarding invitation sent to a prospective tenant's Google email.",
+      "type": "object",
+      "properties": {
+        "invitationId": { "type": "string" },
+        "propertyId": { "type": "string" },
+        "propertyName": { "type": "string" },
+        "unitId": { "type": "string" },
+        "unitNumber": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "invitedEmail": { "type": "string" },
+        "tenantName": { "type": "string" },
+        "rentAmount": { "type": "number" },
+        "currency": { "type": "string" },
+        "status": { "type": "string", "enum": ["PENDING", "ACCEPTED", "REVOKED"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["invitationId", "propertyId", "unitId", "ownerId", "invitedEmail", "rentAmount", "status", "createdAt"]
+    },
+    "Payment": {
+      "title": "Payment",
+      "description": "External payment received for rent.",
+      "type": "object",
+      "properties": {
+        "paymentId": { "type": "string" },
+        "propertyId": { "type": "string" },
+        "unitId": { "type": "string" },
+        "tenancyId": { "type": "string" },
+        "tenantEmail": { "type": "string" },
+        "tenantName": { "type": "string" },
+        "rentalPeriod": { "type": "string" },
+        "amount": { "type": "number" },
+        "currency": { "type": "string" },
+        "paymentDate": { "type": "string" },
+        "method": { "type": "string", "enum": ["CASH", "CHEQUE", "MOBILE_MONEY"] },
+        "reference": { "type": "string" },
+        "isCleared": { "type": "boolean" },
+        "recordedBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["paymentId", "propertyId", "unitId", "tenantEmail", "rentalPeriod", "amount", "method", "recordedBy", "createdAt"]
+    },
+    "Receipt": {
+      "title": "Receipt",
+      "description": "Final monthly rent receipt issued when a month is fully settled.",
+      "type": "object",
+      "properties": {
+        "receiptId": { "type": "string" },
+        "receiptNumber": { "type": "string" },
+        "propertyId": { "type": "string" },
+        "propertyName": { "type": "string" },
+        "unitId": { "type": "string" },
+        "unitNumber": { "type": "string" },
+        "tenancyId": { "type": "string" },
+        "tenantEmail": { "type": "string" },
+        "tenantName": { "type": "string" },
+        "rentalPeriod": { "type": "string" },
+        "totalAmount": { "type": "number" },
+        "currency": { "type": "string" },
+        "settlementDate": { "type": "string" },
+        "paymentsSummary": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["receiptId", "receiptNumber", "propertyId", "propertyName", "unitId", "tenantEmail", "rentalPeriod", "totalAmount", "settlementDate", "createdAt"]
+    },
+    "Announcement": {
+      "title": "Announcement",
+      "description": "Notice, warning, or policy update published by property management.",
+      "type": "object",
+      "properties": {
+        "announcementId": { "type": "string" },
+        "propertyId": { "type": "string" },
+        "targetType": { "type": "string", "enum": ["ALL", "UNIT", "TENANT"] },
+        "targetUnitId": { "type": "string" },
+        "targetEmail": { "type": "string" },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "type": { "type": "string", "enum": ["ANNOUNCEMENT", "WARNING", "POLICY"] },
+        "priority": { "type": "string", "enum": ["NORMAL", "IMPORTANT", "URGENT"] },
+        "authorName": { "type": "string" },
+        "authorId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["announcementId", "propertyId", "title", "message", "type", "authorId", "createdAt"]
+    },
+    "MaintenanceRequest": {
+      "title": "MaintenanceRequest",
+      "description": "Maintenance request reported by a tenant or manager.",
+      "type": "object",
+      "properties": {
+        "requestId": { "type": "string" },
+        "propertyId": { "type": "string" },
+        "propertyName": { "type": "string" },
+        "unitId": { "type": "string" },
+        "unitNumber": { "type": "string" },
+        "tenantEmail": { "type": "string" },
+        "tenantName": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "priority": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH", "EMERGENCY"] },
+        "status": { "type": "string", "enum": ["PENDING", "IN_PROGRESS", "RESOLVED", "CANCELLED"] },
+        "assignedToEmail": { "type": "string" },
+        "assignedToName": { "type": "string" },
+        "resolutionNotes": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["requestId", "propertyId", "unitId", "tenantEmail", "title", "description", "priority", "status", "createdAt"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Immutable security and operational event log.",
+      "type": "object",
+      "properties": {
+        "logId": { "type": "string" },
+        "propertyId": { "type": "string" },
+        "actorId": { "type": "string" },
+        "actorEmail": { "type": "string" },
+        "action": { "type": "string" },
+        "details": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["logId", "actorId", "action", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User account documents keyed by authenticated user ID."
+    },
+    "/properties/{propertyId}": {
+      "schema": { "$ref": "#/entities/Property" },
+      "description": "Property site documents."
+    },
+    "/units/{unitId}": {
+      "schema": { "$ref": "#/entities/Unit" },
+      "description": "Rental units under properties."
+    },
+    "/tenancies/{tenancyId}": {
+      "schema": { "$ref": "#/entities/Tenancy" },
+      "description": "Tenancy contracts."
+    },
+    "/invitations/{invitationId}": {
+      "schema": { "$ref": "#/entities/Invitation" },
+      "description": "Tenant onboarding invitations."
+    },
+    "/payments/{paymentId}": {
+      "schema": { "$ref": "#/entities/Payment" },
+      "description": "External payment records."
+    },
+    "/receipts/{receiptId}": {
+      "schema": { "$ref": "#/entities/Receipt" },
+      "description": "Settled rent PDF receipts."
+    },
+    "/announcements/{announcementId}": {
+      "schema": { "$ref": "#/entities/Announcement" },
+      "description": "Announcements, warnings, and policies."
+    },
+    "/maintenance_requests/{requestId}": {
+      "schema": { "$ref": "#/entities/MaintenanceRequest" },
+      "description": "Maintenance tickets and repair progress."
+    },
+    "/audit_logs/{logId}": {
+      "schema": { "$ref": "#/entities/AuditLog" },
+      "description": "Auditable operational actions."
+    }
+  }
+}

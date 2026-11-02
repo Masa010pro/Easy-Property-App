@@ -1,0 +1,6 @@
+{
+  "name": "Easy Property",
+  "description": "Rental property management application to manage properties, units, tenants, external payments, and PDF receipts.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

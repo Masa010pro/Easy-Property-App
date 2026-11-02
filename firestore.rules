@@ -1,0 +1,137 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isPlatformAdmin() {
+      return isSignedIn() && (
+        (request.auth.token.email == 'masadavid010@gmail.com' && request.auth.token.email_verified == true) ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128;
+    }
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Users Collection ---
+    match /users/{userId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
+      allow create: if isSignedIn() && (
+        request.auth.uid == userId || isPlatformAdmin()
+      ) && request.resource.data.userId == userId;
+      allow update: if isSignedIn() && (
+        request.auth.uid == userId || isPlatformAdmin()
+      ) && request.resource.data.userId == userId;
+      allow delete: if isPlatformAdmin();
+    }
+
+    // --- Properties Collection ---
+    match /properties/{propertyId} {
+      // Allow public read if advertised, or if signed in
+      allow get: if resource.data.isPublicAd == true || isSignedIn();
+      allow list: if isSignedIn();
+      allow create: if isSignedIn() && (
+        request.resource.data.ownerId == request.auth.uid || isPlatformAdmin()
+      );
+      allow update: if isSignedIn() && (
+        resource.data.ownerId == request.auth.uid ||
+        (resource.data.managerEmails is list && request.auth.token.email in resource.data.managerEmails) ||
+        isPlatformAdmin()
+      );
+      allow delete: if isSignedIn() && (
+        resource.data.ownerId == request.auth.uid || isPlatformAdmin()
+      );
+    }
+
+    // --- Units Collection ---
+    match /units/{unitId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn() && (
+        request.resource.data.ownerId == request.auth.uid || isPlatformAdmin()
+      );
+      allow update: if isSignedIn();
+      allow delete: if isSignedIn() && (
+        resource.data.ownerId == request.auth.uid || isPlatformAdmin()
+      );
+    }
+
+    // --- Tenancies Collection ---
+    match /tenancies/{tenancyId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn();
+      allow delete: if isSignedIn() && (
+        resource.data.ownerId == request.auth.uid || isPlatformAdmin()
+      );
+    }
+
+    // --- Invitations Collection ---
+    match /invitations/{invitationId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn();
+      allow delete: if isSignedIn() && (
+        resource.data.ownerId == request.auth.uid || isPlatformAdmin()
+      );
+    }
+
+    // --- Payments Collection ---
+    match /payments/{paymentId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (
+        request.resource.data.recordedBy == request.auth.uid || isPlatformAdmin()
+      );
+      allow delete: if isPlatformAdmin();
+    }
+
+    // --- Receipts Collection ---
+    match /receipts/{receiptId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isPlatformAdmin();
+      allow delete: if isPlatformAdmin();
+    }
+
+    // --- Announcements Collection ---
+    match /announcements/{announcementId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (
+        resource.data.authorId == request.auth.uid || isPlatformAdmin()
+      );
+      allow delete: if isSignedIn() && (
+        resource.data.authorId == request.auth.uid || isPlatformAdmin()
+      );
+    }
+
+    // --- Maintenance Requests Collection ---
+    match /maintenance_requests/{requestId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn();
+      allow delete: if isPlatformAdmin();
+    }
+
+    // --- Audit Logs Collection ---
+    match /audit_logs/{logId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.actorId == request.auth.uid;
+      allow update, delete: if isPlatformAdmin();
+    }
+  }
+}
